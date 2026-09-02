@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Thiệp Kỷ Niệm Yêu Thương</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #fde8ed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Nền trái tim bay */
+        .floating-heart {
+            position: absolute;
+            color: #ffb3c1;
+            font-size: 18px;
+            animation: floatUp 8s infinite linear;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(105vh) scale(0.6); opacity: 0; }
+            50% { opacity: 0.7; }
+            100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+        }
+
+        /* Màn hình 1: Bìa Thiệp Ban Đầu */
+        .card-cover {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #ff758f;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(255, 75, 110, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+            background-image: radial-gradient(#ffccd5 15%, transparent 15%);
+            background-size: 16px 16px;
+        }
+
+        .card-cover:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 75, 110, 0.3);
+        }
+
+        .main-heart {
+            font-size: 60px;
+            animation: pulse 1.5s infinite ease-in-out;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .cover-title {
+            color: #c9184a;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .cover-subtitle {
+            color: #ff758f;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Màn hình 2: Bảng Kỷ Niệm 4 Mục */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(140, 20, 50, 0.75);
+            backdrop-filter: blur(5px);
+            z-index: 50;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 30px 25px;
+            max-width: 900px;
+            width: 95%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            position: relative;
+            text-align: center;
+            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 26px;
+            color: #d90429;
+            cursor: pointer;
+            font-weight: bold;
+            line-height: 1;
+            transition: transform 0.2s;
+        }
+
+        .close-modal-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .modal-title {
+            color: #c9184a;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .category-card {
+            border: 1px solid rgba(255, 182, 193, 0.6);
+            border-radius: 20px;
+            padding: 22px 12px 14px 12px;
+            background: linear-gradient(145deg, #ffffff, #fff0f3);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(255, 117, 143, 0.12);
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 26px;
+            background: linear-gradient(135deg, #ff758f, #ffb3c1);
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(201, 24, 74, 0.2);
+        }
+
+        .category-card::after {
+            content: "💌";
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            z-index: 3;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #ff4d6d;
+            box-shadow: 0 15px 30px rgba(255, 77, 109, 0.25);
+            background: linear-gradient(145deg, #ffffff, #ffe6eb);
+        }
+
+        .card-click-area {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .category-card img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 14px;
+            display: block;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover img {
+            transform: scale(1.03);
+        }
+
+        .category-card .card-title {
+            color: #a4133c;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-add-direct {
+            background: linear-gradient(135deg, #ff758f, #ff4d6d);
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-add-direct:hover {
+            background: linear-gradient(135deg, #ff4d6d, #c9184a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(201, 24, 74, 0.4);
+        }
+
+        /* Màn hình Xem Ảnh */
+        .scatter-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20, 5, 10, 0.92);
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            overflow-y: auto;
+            padding: 80px 20px 40px 20px;
+        }
+
+        .scatter-overlay.active {
+            display: block;
+        }
+
+        .scatter-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: rgba(20, 5, 10, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 120;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .scatter-title {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .scatter-close {
+            background: #ffffff;
+            color: #d90429;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .polaroid-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 25px 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .polaroid-item {
+            background: #ffffff;
+            padding: 12px 12px 35px 12px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 200px;
+            cursor: pointer;
+            position: relative;
+            animation: popIn 0.4s ease-out forwards;
+        }
+
+        .polaroid-item:hover {
+            transform: scale(1.6) rotate(0deg) translateY(-15px) !important;
+            z-index: 200 !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+        }
+
+        .polaroid-item img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 6px;
+            display: block;
+            background-color: #f0f0f0;
+            pointer-events: none;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .scatter-hint {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            margin-top: 35px;
+            font-weight: 500;
+        }
+
+        /* Lightbox Xem Toàn Màn Hình */
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            cursor: zoom-out;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .lightbox-overlay.active {
+            display: flex;
+        }
+
+        .lightbox-card {
+            background: #ffffff;
+            padding: 16px 16px 50px 16px;
+            border-radius: 16px;
+            max-width: 90vw;
+            max-height: 85vh;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: default;
+            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lightbox-card img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: #ffffff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Nút Phát Nhạc Cassette Góc Dưới Bên Phải */
+        .music-player-btn {
+            position: fixed;
+            bottom: 22px;
+            right: 22px;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #ff4d6d, #c9184a);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(201, 24, 74, 0.4);
+            cursor: pointer;
+            z-index: 999;
+            border: 2px solid #ffffff;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .music-player-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 25px rgba(201, 24, 74, 0.6);
+        }
+
+        .music-icon {
+            font-size: 24px;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .music-player-btn.playing .music-icon {
+            animation: spinDisc 3s linear infinite;
+        }
+
+        @keyframes spinDisc {
+            100% { transform: rotate(360deg); }
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Responsive cho iPhone 13 & 14 Pro */
+        @media (max-width: 600px) {
+            .modal-overlay {
+                padding: 12px;
+                align-items: flex-start;
+                overflow-y: auto;
+            }
+
+            .modal-box {
+                padding: 24px 14px 20px 14px;
+                border-radius: 20px;
+                max-height: 92vh;
+                overflow-y: auto;
+                margin: auto 0;
+            }
+
+            .modal-title { font-size: 20px; }
+            .modal-desc { font-size: 12px; margin-bottom: 18px; }
+
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .category-card { padding: 18px 8px 10px 8px; }
+            .category-card img { height: 100px; }
+            .category-card .card-title { font-size: 12px; margin-bottom: 8px; }
+            .btn-add-direct { font-size: 10px; padding: 6px 8px; }
+
+            .polaroid-item {
+                width: 140px;
+                padding: 8px 8px 24px 8px;
+            }
+
+            .polaroid-item img { height: 110px; }
+            .polaroid-item:hover {
+                transform: scale(1.25) rotate(0deg) translateY(-5px) !important;
+            }
+
+            .music-player-btn {
+                bottom: 18px;
+                right: 18px;
+                width: 46px;
+                height: 46px;
+            }
+            .music-icon { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Trái tim bay nền -->
+    <div id="heartContainer"></div>
+
+    <!-- Màn hình 1: Bìa Thiệp -->
+    <div class="card-cover" id="cardCover" onclick="openModal(); playAudio();">
+        <div class="main-heart">❤️</div>
+        <div class="cover-title">Kỷ Niệm 2 Năm Quen Nhau</div>
+        <div class="cover-subtitle">✨ Nhấp vào đây để mở thiệp ✨</div>
+    </div>
+
+    <!-- Màn hình 2: Bảng Kỷ Niệm 4 Mục -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="close-modal-btn" onclick="closeModal()">&times;</div>
+            <div class="modal-title">💖 Kỷ Niệm Của Tụi Mình 💖</div>
+            <div class="modal-desc">Cảm ơn vì đã luôn đồng hành cùng nhau qua từng khoảnh khắc tuyệt vời.<br>Dưới đây là những kỷ niệm ngọt ngào nhất mà chúng ta đã cùng lưu giữ!</div>
+            
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="card-click-area" onclick="openScatter('chuyen_di', 'Chuyến đi đầu tiên ⛰️')">
+                        <img id="thumb-chuyen_di" src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=500&q=80" alt="Chuyến đi" onerror="this.src='https://via.placeholder.com/400x300?text=K%E1%BB%B7+Ni%E1%BB%87m'">
+                        <div class="card-title">Chuyến đi đầu tiên ⛰️</div>
+                    </div>
+                    <button class="btn-add-direct" onclick="triggerDirectUpload('chuyen_di')">➕ Chèn thêm ảnh</button>
+                </div>
+
+                <div class="category-card">
+                    <div class="card-click-area" onclick="openScatter('hen_ho', 'Hẹn hò ngọt ngào ☕')">
+                        <img id="thumb-hen_ho" src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=400&q=80" alt="Hẹn hò" onerror="this.src='https://via.placeholder.com/400x300?text=K%E1%BB%B7+Ni%E1%BB%87m'">
+                        <div class="card-title">Hẹn hò tụi mình ☕</div>
+                    </div>
+                    <button class="btn-add-direct" onclick="triggerDirectUpload('hen_ho')">➕ Chèn thêm ảnh</button>
+                </div>
+
+                <div class="category-card">
+                    <div class="card-click-area" onclick="openScatter('sinh_nhat', 'Sinh nhật đáng nhớ 🎂')">
+                        <img id="thumb-sinh_nhat" src="https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=400&q=80" alt="Sinh nhật" onerror="this.src='https://via.placeholder.com/400x300?text=K%E1%BB%B7+Ni%E1%BB%87m'">
+                        <div class="card-title">Sinh nhật đáng nhớ 🎂</div>
+                    </div>
+                    <button class="btn-add-direct" onclick="triggerDirectUpload('sinh_nhat')">➕ Chèn thêm ảnh</button>
+                </div>
+
+                <div class="category-card">
+                    <div class="card-click-area" onclick="openScatter('tam_bien', 'Cùng nhau tắm biển 🏖️')">
+                        <img id="thumb-tam_bien" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80" alt="Tắm biển" onerror="this.src='https://via.placeholder.com/400x300?text=K%E1%BB%B7+Ni%E1%BB%87m'">
+                        <div class="card-title">Cùng nhau tắm biển 🏖️</div>
+                    </div>
+                    <button class="btn-add-direct" onclick="triggerDirectUpload('tam_bien')">➕ Chèn thêm ảnh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn hình 3: Danh sách Polaroid -->
+    <div class="scatter-overlay" id="scatterOverlay">
+        <div class="scatter-header">
+            <div class="scatter-title" id="scatterTitle">Kỷ Niệm</div>
+            <div class="scatter-close" onclick="closeScatter()">&times;</div>
+        </div>
+        <div class="polaroid-grid" id="polaroidContainer"></div>
+        <div class="scatter-hint">✨ Ấn Vô Hình Tụi Mình Em Nhé💖💖💖 ✨</div>
+    </div>
+
+    <!-- Lightbox Zoom -->
+    <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+        <div class="lightbox-close">&times;</div>
+        <div class="lightbox-card" onclick="event.stopPropagation()">
+            <img id="lightboxImg" src="" alt="Zoom Photo">
+        </div>
+    </div>
+
+    <!-- Nút Bật/Tắt Nhạc Góc Dưới Bên Phải -->
+    <div class="music-player-btn" id="musicBtn" onclick="toggleMusic()">
+        <span class="music-icon" id="musicIcon">🎵</span>
+    </div>
+
+    <!-- File Âm Thanh "Thời thanh xuân sẽ qua" -->
+    <audio id="bgMusic" loop src="nhac.mp3"></audio>
+
+    <input type="file" id="fileInput" accept="image/*" multiple>
+
+    <script>
+        var photosData = {
+            'chuyen_di': ["https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80",
+                "images/dautien1.jpg",
+                "images/dautien2.jpg",
+                "images/dautien3.jpg",
+                "images/dautien4.jpg",
+                "images/dautien5.jpg",
+                "images/dautien6.jpg",
+                "images/dautien7.jpg",
+            ],
+            'hen_ho': ["https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80",
+                "images/henho1.jpg",
+                "images/henho2.jpg",
+                "images/henho3.jpg",
+                "images/henho4.jpg",
+                "images/henho5.jpg",
+                "images/henho6.jpg",
+                "images/henho7.jpg",
+                "images/henho8.jpg",
+                "images/henho9.jpg"
+
+            ],
+            'sinh_nhat': ["https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80",
+                "images/sn1.jpg",
+                "images/sn2.jpg",
+                "images/sn3.jpg",
+                "images/sn4.jpg",
+                "images/sn5.jpg",
+                "images/sn6.jpg",
+                "images/sn7.jpg",
+            ],
+            'tam_bien': ["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+                "images/tambien1.jpg",
+                "images/tambien2.jpg",
+                "images/tambien3.jpg",
+                "images/tambien4.jpg",
+                "images/tambien5.jpg",
+                "images/tambien6.jpg",
+                "images/tambien7.jpg"
+            ]
+        };
+
+        var selectedCategoryForUpload = 'chuyen_di';
+        var audio = document.getElementById('bgMusic');
+        var musicBtn = document.getElementById('musicBtn');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var heartContainer = document.getElementById('heartContainer');
+            var hearts = ['🌸', '💕', '💖', '✨'];
+            for (var i = 0; i < 20; i++) {
+                var h = document.createElement('div');
+                h.className = 'floating-heart';
+                h.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+                h.style.left = Math.random() * 100 + 'vw';
+                h.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                h.style.animationDelay = Math.random() * 4 + 's';
+                heartContainer.appendChild(h);
+            }
+        });
+
+        function playAudio() {
+            audio.play().then(function() {
+                musicBtn.classList.add('playing');
+            }).catch(function(e) { console.log("Audio play blocked"); });
+        }
+
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play();
+                musicBtn.classList.add('playing');
+            } else {
+                audio.pause();
+                musicBtn.classList.remove('playing');
+            }
+        }
+
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function triggerDirectUpload(key) {
+            selectedCategoryForUpload = key;
+            document.getElementById('fileInput').click();
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            var files = e.target.files;
+            if (files && files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    var reader = new FileReader();
+                    reader.onload = function(event) {
+                        photosData[selectedCategoryForUpload].push(event.target.result);
+                        document.getElementById('thumb-' + selectedCategoryForUpload).src = event.target.result;
+                    };
+                    reader.readAsDataURL(files[i]);
+                }
+                alert("Đã thêm ảnh thành công! Bạn có thể bấm vào mục để xem ngay.");
+            }
+        });
+
+        function openScatter(key, title) {
+            var images = photosData[key];
+            if (!images || images.length === 0) {
+                alert('Mục này chưa có ảnh!');
+                return;
+            }
+
+            document.getElementById('scatterTitle').innerText = title;
+            var container = document.getElementById('polaroidContainer');
+            container.innerHTML = '';
+
+            var rotations = [-6, 5, -4, 7, -3, 6, -7, 4];
+
+            images.forEach(function(src, index) {
+                var item = document.createElement('div');
+                item.className = 'polaroid-item';
+                var rotateDeg = rotations[index % rotations.length];
+                item.style.transform = 'rotate(' + rotateDeg + 'deg)';
+                item.onclick = function() { openLightbox(src); };
+                item.innerHTML = '<img src="' + src + '" onerror="this.src=\'https://via.placeholder.com/400x300?text=K%E1%BB%B7+Ni%E1%BB%87m\';">';
+                container.appendChild(item);
+            });
+
+            document.getElementById('scatterOverlay').classList.add('active');
+        }
+
+        function closeScatter() {
+            document.getElementById('scatterOverlay').classList.remove('active');
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightboxOverlay').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightboxOverlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
